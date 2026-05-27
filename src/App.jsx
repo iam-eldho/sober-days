@@ -228,8 +228,11 @@ function Onboarding({ onComplete }) {
   const ageRef  = useRef(null);
 
   useEffect(() => {
-    if (step===1) setTimeout(()=>nameRef.current?.focus(), 450);
-    if (step===2) setTimeout(()=>ageRef.current?.focus(),  450);
+    if (step===1) setTimeout(()=>nameRef.current?.focus(), 600);
+    if (step===2) {
+      if (document.activeElement) document.activeElement.blur();
+      setTimeout(()=>ageRef.current?.focus(), 600);
+    }
     if (step===3) setTimeout(()=>onComplete({ name:name.trim(), age:parseInt(age)||0 }), 2200);
   }, [step]);
 
@@ -268,9 +271,18 @@ function Onboarding({ onComplete }) {
           <div style={{ fontSize:18, fontWeight:700, color:"#f1f5f9" }}>What's your name?</div>
         </div>
       </div>
-      <input ref={nameRef} value={name} onChange={e=>{setName(e.target.value);setError("");}} onKeyDown={e=>e.key==="Enter"&&advance()}
+      <input
+        ref={nameRef}
+        value={name}
+        type="text"
+        autoComplete="given-name"
+        autoCorrect="off"
+        autoCapitalize="words"
+        spellCheck={false}
         placeholder="Enter your name"
-        style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1.5px solid ${error?"#f87171":"rgba(16,185,129,0.3)"}`, borderRadius:14, padding:"14px 16px", fontSize:17, color:"#f1f5f9", outline:"none", transition:"border-color 0.2s", marginBottom:error?8:24, fontFamily:"inherit" }}
+        onChange={e=>{setName(e.target.value);setError("");}}
+        onKeyDown={e=>e.key==="Enter"&&advance()}
+        style={{ display:"block", width:"100%", boxSizing:"border-box", WebkitAppearance:"none", appearance:"none", background:"rgba(255,255,255,0.07)", border:`1.5px solid ${error?"#f87171":"rgba(16,185,129,0.3)"}`, borderRadius:14, padding:"14px 16px", fontSize:16, color:"#f1f5f9", WebkitTextFillColor:"#f1f5f9", outline:"none", transition:"border-color 0.2s", marginBottom:error?8:24, fontFamily:"inherit", minWidth:0 }}
       />
       {error && <div style={{ color:"#f87171", fontSize:13, marginBottom:16 }}>{error}</div>}
       <Btn onClick={advance} t={null} size="lg" fullWidth style={{ background:"#10b981", color:"#fff", boxShadow:"0 4px 20px rgba(16,185,129,0.3)" }}>
@@ -290,9 +302,22 @@ function Onboarding({ onComplete }) {
         </div>
       </div>
       <div style={{ fontSize:14, color:"#94a3b8", marginBottom:20, lineHeight:1.6 }}>Your age helps us tailor recovery insights to your health profile.</div>
-      <input ref={ageRef} value={age} type="number" min={13} max={120} onChange={e=>{setAge(e.target.value);setError("");}} onKeyDown={e=>e.key==="Enter"&&advance()}
+      <input
+        ref={ageRef}
+        value={age}
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
         placeholder="Your age"
-        style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1.5px solid ${error?"#f87171":"rgba(16,185,129,0.3)"}`, borderRadius:14, padding:"14px 16px", fontSize:17, color:"#f1f5f9", outline:"none", transition:"border-color 0.2s", marginBottom:error?8:24, fontFamily:"inherit" }}
+        onChange={e=>{
+          const v = e.target.value.replace(/[^0-9]/g,"");
+          setAge(v); setError("");
+        }}
+        onKeyDown={e=>e.key==="Enter"&&advance()}
+        style={{ display:"block", width:"100%", boxSizing:"border-box", WebkitAppearance:"none", appearance:"none", background:"rgba(255,255,255,0.07)", border:`1.5px solid ${error?"#f87171":"rgba(16,185,129,0.3)"}`, borderRadius:14, padding:"14px 16px", fontSize:16, color:"#f1f5f9", WebkitTextFillColor:"#f1f5f9", outline:"none", transition:"border-color 0.2s", marginBottom:error?8:24, fontFamily:"inherit", minWidth:0 }}
       />
       {error && <div style={{ color:"#f87171", fontSize:13, marginBottom:16 }}>{error}</div>}
       <Btn onClick={advance} t={null} size="lg" fullWidth style={{ background:"#10b981", color:"#fff", boxShadow:"0 4px 20px rgba(16,185,129,0.3)" }}>
@@ -318,15 +343,15 @@ function Onboarding({ onComplete }) {
   const progress = [0.25, 0.5, 0.75, 1.0][step] || 1;
 
   return (
-    <div style={{ position:"fixed", inset:0, zIndex:300, background:"#0a1628", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
+    <div style={{ position:"fixed", inset:0, zIndex:300, background:"#0a1628", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px", paddingTop:"max(20px, env(safe-area-inset-top))", paddingBottom:"max(20px, env(safe-area-inset-bottom))", boxSizing:"border-box", overflowY:"auto", WebkitOverflowScrolling:"touch" }}>
       <OnboardingOrbs/>
-      <div style={{ width:"100%", maxWidth:360, position:"relative", zIndex:1 }}>
+      <div style={{ width:"100%", maxWidth:360, position:"relative", zIndex:1, boxSizing:"border-box" }}>
         {/* Progress bar */}
         <div style={{ height:3, background:"rgba(255,255,255,0.08)", borderRadius:3, marginBottom:32, overflow:"hidden" }}>
           <div style={{ height:"100%", background:"#10b981", borderRadius:3, width:`${progress*100}%`, transition:"width 0.5s cubic-bezier(.4,0,.2,1)" }}/>
         </div>
         {/* Card */}
-        <div style={{ background:"#1e293b", borderRadius:24, padding:"28px 24px", border:"1px solid rgba(16,185,129,0.15)", boxShadow:"0 25px 60px rgba(0,0,0,0.5)", overflow:"hidden" }}>
+        <div style={{ background:"#1e293b", borderRadius:24, padding:"28px 24px", border:"1px solid rgba(16,185,129,0.15)", boxShadow:"0 25px 60px rgba(0,0,0,0.5)", overflow:"hidden", boxSizing:"border-box", width:"100%" }}>
           <div key={stepKey} style={{ animation: leaving ? "slideOutLeft 0.28s ease forwards" : "slideInRight 0.35s cubic-bezier(.4,0,.2,1)" }}>
             {steps[step]}
           </div>
@@ -887,8 +912,15 @@ export default function SoberTracker() {
       <style>{`
         *, *::before, *::after { box-sizing: border-box; }
         button { font-family: inherit; }
+        input, textarea, select {
+          -webkit-appearance: none;
+          appearance: none;
+          border-radius: 0;
+          font-size: 16px;
+        }
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input::placeholder { color: rgba(148,163,184,0.55); -webkit-text-fill-color: rgba(148,163,184,0.55); }
         ::-webkit-scrollbar { display: none; }
         * { scrollbar-width: none; }
 
